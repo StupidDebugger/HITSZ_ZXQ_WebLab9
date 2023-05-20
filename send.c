@@ -34,7 +34,6 @@ void send_mail(const char* receiver, const char* subject, const char* msg, const
     int r_size;
 
     // add for end input flag(maybe unused)
-    const char* end_flag = "\r\n";
     char tbuf[MAX_SIZE+1];
     // Get IP from domain name
     if ((host = gethostbyname(host_name)) == NULL)
@@ -111,20 +110,8 @@ void send_mail(const char* receiver, const char* subject, const char* msg, const
     buf[r_size] = '\0'; 
     printf("%s", buf);
     // TODO: Send MAIL FROM command and print server response
-    // char* MAIL_FROM; 
-    // char* t = "MAIL FROM:<";
-    // MAIL_FROM = malloc((strlen(t)+strlen(from)+strlen(">\r\n"))*sizeof(char));
-    // memcpy(MAIL_FROM, t, sizeof(t));
-    // MAIL_FROM = strcat(MAIL_FROM, from);
-    // MAIL_FROM = strcat(MAIL_FROM, ">\r\n");
-    // send(s_fd, MAIL_FROM, strlen(MAIL_FROM), 0);
-    // free(MAIL_FROM);
     sprintf(tbuf, "MAIL FROM:<%s>\r\n", from);
     send(s_fd, tbuf, strlen(tbuf), 0);
-    // const char* MAIL_FROM = "MAIL FROM:";
-    // send(s_fd, MAIL_FROM, strlen(MAIL_FROM), 0);
-    // send(s_fd, from, strlen(from), 0);
-    // send(s_fd, end_flag, strlen(end_flag), 0);
     if ((r_size = recv(s_fd, buf, MAX_SIZE, 0)) == -1)
     {
         perror("recv");
@@ -133,20 +120,8 @@ void send_mail(const char* receiver, const char* subject, const char* msg, const
     buf[r_size] = '\0'; 
     printf("%s", buf);
     // TODO: Send RCPT TO command and print server response
-    // char* RCPT_TO;
-    // char* t = "RCPT TO:<";
-    // RCPT_TO = malloc((strlen(t)+strlen(receiver)+strlen(">\r\n"))*sizeof(char))
-    // memcpy(RCPT_TO, t);
-    // RCPT_TO = strcat(RCPT_TO, receiver);
-    // RCPT_TO = strcat(RCPT_TO, ">\r\n");
-    // send(s_fd, RCPT_TO, strlen(RCPT_TO), 0);
-    // free(RCPT_TO);
     sprintf(tbuf, "RCPT TO:<%s>\r\n", receiver);
     send(s_fd, tbuf, strlen(tbuf), 0);
-    // const char* RCPT_TO = "RCPT TO:";
-    // send(s_fd, RCPT_TO, strlen(RCPT_TO), 0);
-    // send(s_fd, receiver, strlen(receiver), 0);
-    // send(s_fd, end_flag, strlen(end_flag), 0);
     if ((r_size = recv(s_fd, buf, MAX_SIZE, 0)) == -1)
     {
         perror("recv");
@@ -174,77 +149,27 @@ void send_mail(const char* receiver, const char* subject, const char* msg, const
     fclose(fin);
     fclose(fout);
     fout = fopen("temp_base64.txt", "r");
-    fgets(tbuf, MAX_SIZE, fout);
+    char fbuf[MAX_SIZE];
+    fgets(fbuf, MAX_SIZE, fout);
     fclose(fout);
     sprintf(tbuf, 
         "From: <%s>\r\n"
         "To: <%s>\r\n"
-        "MIME-Version: 1.0\r\n"
-        "Content-Type: multipart/mixed; boundary=\"#BOUNDARY#\"\r\n"
         "Subject: %s\r\n" 
-        "\r\n\r\n"
+        "MIME-Version: 1.0\r\n"
+        "Content-Type: multipart/mixed; boundary=\"#BOUNDARY#\"\r\n\r\n"
         "--#BOUNDARY#\r\n"
-        "Content-Type: text/plain; charset=us-ascii\r\n"
+        "Content-Type: text/plain; charset=gb2312\r\n"
         "Content-Transfer-Encoding: base64\r\n"
-        "%s"
         "\r\n"
+        "%s"
         "--#BOUNDARY#\r\n"
-        "Content-Type: application/octet-stream; name=\"%s\"\r\n"
+        "Content-Type: application/octet-stream; name=%s\r\n"
+        "Content-Type: attachment; filename=%s\r\n"
         "Content-Transfer-Encoding: base64\r\n"
-        "%s"
         "\r\n"
-        "--#BOUNDARY#\r\n"
-        "\r\n", from, receiver, subject, msg, att_path, tbuf);
+        "%s", from, receiver, subject, msg_base64, att_path, att_path, fbuf);
     free(msg_base64);
-    // const char* header_from = "From: ";
-    // const char* header_to = "To: ";
-    // const char* header_MIME = "MIME-Version: 1.0\r\n";
-    // const char* header_ConType = "Content-Type: multipart/mixed; boundary=\"#BOUNDARY#\"\r\n";
-    // const char* header_ConEncoding = "Content-Transfer-Encoding: base64\r\n";
-    // const char* boundary = "--#BOUNDARY#\r\n";
-    // const char* header_sub = "Subject: ";
-    // send(s_fd, header_from, strlen(header_from), 0);
-    // send(s_fd, from, strlen(from), 0);
-    // send(s_fd, end_flag, strlen(end_flag), 0);
-    // send(s_fd, header_to, strlen(header_to), 0);
-    // send(s_fd, receiver, strlen(receiver), 0);
-    // send(s_fd, end_flag, strlen(end_flag), 0);
-    // send(s_fd, header_MIME, strlen(header_MIME), 0);
-    // send(s_fd, header_sub, strlen(header_sub), 0);
-    // send(s_fd, subject, strlen(subject), 0);
-    // send(s_fd, end_flag, strlen(end_flag), 0);
-    //     // 先发正文
-    // send(s_fd, boundary, strlen(boundary), 0);
-    // const char* header_msg_ConType = "Content-Type: text/plain; charset=us-ascii\r\n";
-    // send(s_fd, header_msg_ConType, strlen(header_msg_ConType), 0);
-    // send(s_fd, header_ConEncoding, strlen(header_ConEncoding), 0);
-    // send(s_fd, msg_base64, strlen(msg_base64), 0);
-    // free(msg_base64);
-    //     // 如果有附件还要发送附件
-    // send(s_fd, boundary, strlen(boundary), 0);
-    // const char* header_att_ConType = "Content-Type: application/octet-stream; name=";
-    // send(s_fd, header_att_ConType, strlen(header_att_ConType), 0);
-    // send(s_fd, att_path, strlen(att_path), 0);
-    // send(s_fd, end_flag, strlen(end_flag), 0);
-    // send(s_fd, header_ConEncoding, strlen(header_ConEncoding), 0);
-    // FILE* fin = fopen(att_path, "r");
-    // FILE* fout = fopen("temp_base64.txt", "w");
-    // encode_file(fin, fout);
-    // send(s_fd, boundary, strlen(boundary), 0);
-    // char* sub;
-    // char* fr;
-    // sub = (char*)malloc((strlen("subject:")+strlen(subject))*sizeof(char));
-    // memcpy(sub, "subject:", sizeof("subject:"));
-    // sub = strcat(sub, subject);
-    // fr = (char*)malloc((strlen("from:")+strlen(from))*sizeof(char));
-    // memcpy(fr, "from:", sizeof("from:"));
-    // fr = strcat(fr, from);
-    // send(s_fd, sub, strlen(sub), 0);
-    // send(s_fd, fr, strlen(fr), 0);
-    // free(sub);
-    // free(fr);
-    // send(s_fd, msg, strlen(msg), 0);
-
     // TODO: Message ends with a single period
     send(s_fd, end_msg, strlen(end_msg), 0);
     if ((r_size = recv(s_fd, buf, MAX_SIZE, 0)) == -1)

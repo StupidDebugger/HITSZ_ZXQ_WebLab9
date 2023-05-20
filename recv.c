@@ -8,6 +8,7 @@
 #include <unistd.h>
 
 #define MAX_SIZE 65535
+#define constswap16(x) ((((x)&0xFF) << 8) | (((x) >> 8) & 0xFF))  // add for big-end small-end transformation
 
 char buf[MAX_SIZE+1];
 
