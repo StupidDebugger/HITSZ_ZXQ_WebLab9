@@ -25,7 +25,7 @@ void send_mail(const char* receiver, const char* subject, const char* msg, const
     const unsigned short port = 25; // SMTP server port
     const char* user = "15071817852@163.com"; // TODO: Specify the user
     const char* pass = "CRPYNHMLHUEGEQSI"; // TODO: Specify the password
-    const char* from = "<15071817852@163.com>"; // TODO: Specify the mail address of the sender
+    const char* from = "15071817852@163.com"; // TODO: Specify the mail address of the sender
     char dest_ip[16]; // Mail server IP address
     int s_fd; // socket file descriptor
     struct hostent *host;
@@ -66,7 +66,7 @@ void send_mail(const char* receiver, const char* subject, const char* msg, const
     printf("%s", buf);
 
     // Send EHLO command and print server response
-    const char* EHLO = "163.com\r\n"; // TODO: Enter EHLO command here
+    const char* EHLO = "EHLO 163.com\r\n"; // TODO: Enter EHLO command here
     send(s_fd, EHLO, strlen(EHLO), 0);
     // TODO: Print server response to EHLO command
     if ((r_size = recv(s_fd, buf, MAX_SIZE, 0)) == -1)
@@ -90,7 +90,7 @@ void send_mail(const char* receiver, const char* subject, const char* msg, const
     const char* user_base64 = encode_str(user);
     send(s_fd, user_base64, strlen(user_base64), 0);
     free(user_base64); // avoid memory leak
-    send(s_fd, end_flag, strlen(end_flag), 0);
+    // send(s_fd, end_flag, strlen(end_flag), 0);
     if ((r_size = recv(s_fd, buf, MAX_SIZE, 0)) == -1)
     {
         perror("recv");
@@ -102,7 +102,7 @@ void send_mail(const char* receiver, const char* subject, const char* msg, const
     const char* pass_base64 = encode_str(pass);
     send(s_fd, pass_base64, strlen(pass_base64), 0);
     free(pass_base64);
-    send(s_fd, end_flag, strlen(end_flag), 0);
+    // send(s_fd, end_flag, strlen(end_flag), 0);
     if ((r_size = recv(s_fd, buf, MAX_SIZE, 0)) == -1)
     {
         perror("recv");
@@ -119,10 +119,12 @@ void send_mail(const char* receiver, const char* subject, const char* msg, const
     // MAIL_FROM = strcat(MAIL_FROM, ">\r\n");
     // send(s_fd, MAIL_FROM, strlen(MAIL_FROM), 0);
     // free(MAIL_FROM);
-    const char* MAIL_FROM = "MAIL FROM:";
-    send(s_fd, MAIL_FROM, strlen(MAIL_FROM), 0);
-    send(s_fd, from, strlen(from), 0);
-    send(s_fd, end_flag, strlen(end_flag), 0);
+    sprintf(tbuf, "MAIL FROM:<%s>\r\n", from);
+    send(s_fd, tbuf, strlen(tbuf), 0);
+    // const char* MAIL_FROM = "MAIL FROM:";
+    // send(s_fd, MAIL_FROM, strlen(MAIL_FROM), 0);
+    // send(s_fd, from, strlen(from), 0);
+    // send(s_fd, end_flag, strlen(end_flag), 0);
     if ((r_size = recv(s_fd, buf, MAX_SIZE, 0)) == -1)
     {
         perror("recv");
@@ -139,10 +141,12 @@ void send_mail(const char* receiver, const char* subject, const char* msg, const
     // RCPT_TO = strcat(RCPT_TO, ">\r\n");
     // send(s_fd, RCPT_TO, strlen(RCPT_TO), 0);
     // free(RCPT_TO);
-    const char* RCPT_TO = "RCPT TO:";
-    send(s_fd, RCPT_TO, strlen(RCPT_TO), 0);
-    send(s_fd, receiver, strlen(receiver), 0);
-    send(s_fd, end_flag, strlen(end_flag), 0);
+    sprintf(tbuf, "RCPT TO:<%s>\r\n", receiver);
+    send(s_fd, tbuf, strlen(tbuf), 0);
+    // const char* RCPT_TO = "RCPT TO:";
+    // send(s_fd, RCPT_TO, strlen(RCPT_TO), 0);
+    // send(s_fd, receiver, strlen(receiver), 0);
+    // send(s_fd, end_flag, strlen(end_flag), 0);
     if ((r_size = recv(s_fd, buf, MAX_SIZE, 0)) == -1)
     {
         perror("recv");
@@ -173,8 +177,8 @@ void send_mail(const char* receiver, const char* subject, const char* msg, const
     fgets(tbuf, MAX_SIZE, fout);
     fclose(fout);
     sprintf(tbuf, 
-        "From: %s\r\n"
-        "To: %s\r\n"
+        "From: <%s>\r\n"
+        "To: <%s>\r\n"
         "MIME-Version: 1.0\r\n"
         "Content-Type: multipart/mixed; boundary=\"#BOUNDARY#\"\r\n"
         "Subject: %s\r\n" 
