@@ -169,6 +169,7 @@ void send_mail(const char* receiver, const char* subject, const char* msg, const
         "Content-Transfer-Encoding: base64\r\n"
         "\r\n"
         "%s", from, receiver, subject, msg_base64, att_path, att_path, fbuf);
+    send(s_fd, tbuf, strlen(tbuf), 0);
     free(msg_base64);
     // TODO: Message ends with a single period
     send(s_fd, end_msg, strlen(end_msg), 0);

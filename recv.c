@@ -61,12 +61,6 @@ void recv_mail()
     send(s_fd, USER, strlen(USER), 0);
     send(s_fd, user, strlen(user), 0);
     send(s_fd, end_flag, strlen(end_flag), 0); 
-    // USER = malloc((strlen("user ")+strlen(user)+strlen("\r\n"))*sizeof(char));
-    // memcpy(USER, "user ", sizeof("user "));
-    // USER = strcat(USER, user);
-    // USER = strcat(USER, "\r\n");
-    // send(s_fd, USER, strlen(USER), 0);
-    // free(USER);
     if ((r_size = recv(s_fd, buf, MAX_SIZE, 0)) == -1)
     {
         perror("recv");
@@ -80,12 +74,6 @@ void recv_mail()
     send(s_fd, PWD, strlen(PWD), 0);
     send(s_fd, pass, strlen(pass), 0);
     send(s_fd, end_flag, strlen(end_flag), 0); 
-    // PWD = malloc((strlen("pass ")+strlen(pass)+strlen("\r\n"))*sizeof(char));
-    // memcpy(PWD, "pass ", sizeof("pass "));
-    // PWD = strcat(PWD, pass);
-    // PWD = strcat(PWD, "\r\n");
-    // send(s_fd, PWD, strlen(PWD), 0);
-    // free(PWD);
     if ((r_size = recv(s_fd, buf, MAX_SIZE, 0)) == -1)
     {
         perror("recv");
